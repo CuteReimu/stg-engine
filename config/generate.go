@@ -36,11 +36,19 @@ var Generate = &GenerateDict{
 }
 
 func (generate *GenerateDict) Init(buf []byte) error {
-	return errors.WithStack(json.Unmarshal(buf, &generate))
+	if err := errors.WithStack(json.Unmarshal(buf, &generate)); err != nil {
+		return err
+	}
+	generate.init()
+	return nil
 }
 
 func (generate *GenerateDict) InitReader(reader io.Reader) error {
-	return errors.WithStack(json.NewDecoder(reader).Decode(&generate))
+	if err := errors.WithStack(json.NewDecoder(reader).Decode(&generate)); err != nil {
+		return err
+	}
+	generate.init()
+	return nil
 }
 
 func (generate *GenerateDict) init() {
