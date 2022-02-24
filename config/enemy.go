@@ -10,7 +10,7 @@ type EnemyDetail struct {
 	Id            int     `json:"id"`
 	StartFrame    int     `json:"start_frame"`
 	DurationFrame int     `json:"duration_frame"`
-	Radius        int     `json:"radius"`
+	Radius        float64 `json:"radius"`
 	Pic           string  `json:"pic"`
 	PicScale      float64 `json:"pic_scale"`
 	PicX          int     `json:"pic_x"`
@@ -29,14 +29,31 @@ type EnemyDetail struct {
 	MoveP6        int     `json:"move_p6"`
 }
 
-type EnemyDict map[int]*EnemyDetail
-
-var Enemy = make(EnemyDict)
-
-func (enemy EnemyDict) Init(buf []byte) error {
-	return errors.WithStack(json.Unmarshal(buf, &enemy))
+type EnemyDict struct {
+	Data     map[int]*EnemyDetail
+	FrameMap map[int][]*EnemyDetail
 }
 
-func (enemy EnemyDict) InitReader(reader io.Reader) error {
-	return errors.WithStack(json.NewDecoder(reader).Decode(&enemy))
+var Enemy = new(EnemyDict)
+
+func (enemy *EnemyDict) Init(buf []byte) error {
+	if err := json.Unmarshal(buf, &enemy.Data); err != nil {
+		return errors.WithStack(err)
+	}
+	enemy.init()
+	return nil
+}
+
+func (enemy *EnemyDict) InitReader(reader io.Reader) error {
+	if err := json.NewDecoder(reader).Decode(&enemy.Data); err != nil {
+		return errors.WithStack(err)
+	}
+	enemy.init()
+	return nil
+}
+
+func (enemy *EnemyDict) init() {
+	for _, data := range enemy.Data {
+		enemy.FrameMap[data.StartFrame] = append(enemy.FrameMap[data.StartFrame], data)
+	}
 }

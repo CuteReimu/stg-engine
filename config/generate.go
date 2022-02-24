@@ -25,14 +25,23 @@ type GenerateDetail struct {
 	MoveP6              float64 `json:"move_p6"`
 }
 
-type GenerateDict map[int]*GenerateDetail
+type GenerateDict struct {
+	Data     map[int]*GenerateDetail
+	FrameMap map[int][]*GenerateDetail
+}
 
-var Generate = make(GenerateDict)
+var Generate = new(GenerateDict)
 
-func (generate GenerateDict) Init(buf []byte) error {
+func (generate *GenerateDict) Init(buf []byte) error {
 	return errors.WithStack(json.Unmarshal(buf, &generate))
 }
 
-func (generate GenerateDict) InitReader(reader io.Reader) error {
+func (generate *GenerateDict) InitReader(reader io.Reader) error {
 	return errors.WithStack(json.NewDecoder(reader).Decode(&generate))
+}
+
+func (generate *GenerateDict) init() {
+	for _, data := range generate.Data {
+		generate.FrameMap[data.StartFrame] = append(generate.FrameMap[data.StartFrame], data)
+	}
 }

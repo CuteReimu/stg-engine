@@ -8,6 +8,18 @@ type Point struct {
 	X, Y float64
 }
 
+func (p Point) Add(p2 Point) Point {
+	return Point{p.X + p2.X, p.Y + p2.Y}
+}
+
+func (p Point) Sub(p2 Point) Point {
+	return Point{p.X - p2.X, p.Y - p2.Y}
+}
+
+func (p Point) Diff(p2 Point) (float64, float64) {
+	return p.X - p2.X, p.Y - p2.Y
+}
+
 // String returns a string representation of p like "(3,4)".
 func (p Point) String() string {
 	return "(" + strconv.Itoa(int(p.X)) + "," + strconv.Itoa(int(p.Y)) + ")"
