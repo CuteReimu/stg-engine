@@ -1,8 +1,14 @@
-package stg
+package utils
 
 import (
+	"math"
 	"strconv"
 )
+
+func RoundToPoint(rad, length float64) Point {
+	sin, cos := math.Sincos(rad)
+	return Point{length * cos, length * sin}
+}
 
 type Point struct {
 	X, Y float64

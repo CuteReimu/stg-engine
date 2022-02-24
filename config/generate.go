@@ -30,7 +30,10 @@ type GenerateDict struct {
 	FrameMap map[int][]*GenerateDetail
 }
 
-var Generate = new(GenerateDict)
+var Generate = &GenerateDict{
+	Data:     make(map[int]*GenerateDetail),
+	FrameMap: make(map[int][]*GenerateDetail),
+}
 
 func (generate *GenerateDict) Init(buf []byte) error {
 	return errors.WithStack(json.Unmarshal(buf, &generate))
