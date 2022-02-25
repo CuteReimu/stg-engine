@@ -11,9 +11,6 @@ type GenerateDetail struct {
 	StartFrame          int     `json:"start_frame"`
 	IntervalFrame       int     `json:"interval_frame"`
 	DurationFrame       int     `json:"duration_frame"`
-	StartCoordinate     int     `json:"start_coordinate"`
-	StartP1             float64 `json:"start_p1"`
-	StartP2             float64 `json:"start_p2"`
 	Bullet              int     `json:"bullet"`
 	BulletDurationFrame int     `json:"bullet_duration_frame"`
 	Move                string  `json:"move"`
@@ -25,34 +22,14 @@ type GenerateDetail struct {
 	MoveP6              float64 `json:"move_p6"`
 }
 
-type GenerateDict struct {
-	Data     map[int]*GenerateDetail
-	FrameMap map[int][]*GenerateDetail
+type GenerateDict map[int]*GenerateDetail
+
+var Generate = make(GenerateDict)
+
+func (generate GenerateDict) Init(buf []byte) error {
+	return errors.WithStack(json.Unmarshal(buf, &generate))
 }
 
-var Generate = &GenerateDict{
-	Data:     make(map[int]*GenerateDetail),
-	FrameMap: make(map[int][]*GenerateDetail),
-}
-
-func (generate *GenerateDict) Init(buf []byte) error {
-	if err := errors.WithStack(json.Unmarshal(buf, &generate)); err != nil {
-		return err
-	}
-	generate.init()
-	return nil
-}
-
-func (generate *GenerateDict) InitReader(reader io.Reader) error {
-	if err := errors.WithStack(json.NewDecoder(reader).Decode(&generate)); err != nil {
-		return err
-	}
-	generate.init()
-	return nil
-}
-
-func (generate *GenerateDict) init() {
-	for _, data := range generate.Data {
-		generate.FrameMap[data.StartFrame] = append(generate.FrameMap[data.StartFrame], data)
-	}
+func (generate GenerateDict) InitReader(reader io.Reader) error {
+	return errors.WithStack(json.NewDecoder(reader).Decode(&generate))
 }

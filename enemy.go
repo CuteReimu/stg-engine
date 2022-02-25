@@ -2,10 +2,17 @@ package stg
 
 import (
 	"github.com/CuteReimu/stg-engine/config"
+	"github.com/CuteReimu/stg-engine/generate"
 	"github.com/CuteReimu/stg-engine/movement"
 	"github.com/CuteReimu/stg-engine/utils"
 	"github.com/hajimehoshi/ebiten/v2"
+	"log"
 )
+
+type Generator struct {
+	gen generate.Generator
+	cfg *config.GenerateDetail
+}
 
 type Enemy struct {
 	cfg   *config.EnemyDetail
@@ -16,19 +23,30 @@ type Enemy struct {
 	HP    int
 	move  movement.Movement
 	pic   *ebiten.Image
+	gen   []*Generator
 }
 
 func NewEnemies(frame int) []*Enemy {
 	var result []*Enemy
 	for _, cfg := range config.Enemy.FrameMap[frame] {
-		result = append(result, &Enemy{
+		e := &Enemy{
 			cfg:   cfg,
 			start: utils.Point{X: cfg.StartX, Y: cfg.StartY},
 			point: utils.Point{X: cfg.StartX, Y: cfg.StartY},
 			HP:    cfg.Hp,
 			move:  movement.Get(cfg.Move, cfg.MoveP1, cfg.MoveP2, cfg.MoveP3, cfg.MoveP4, cfg.MoveP5, cfg.MoveP6),
 			pic:   GetPic(cfg.Pic),
-		})
+		}
+		for _, genId := range cfg.Generate {
+			cfg := config.Generate[genId]
+			if cfg == nil {
+				log.Printf("cannot find generate, id: %d\n", genId)
+				continue
+			}
+			gen := generate.Get(cfg.Move, cfg.MoveP1, cfg.MoveP2, cfg.MoveP3, cfg.MoveP4, cfg.MoveP5, cfg.MoveP6)
+			e.gen = append(e.gen, &Generator{gen: gen, cfg: cfg})
+		}
+		result = append(result, e)
 	}
 	return result
 }
@@ -53,10 +71,18 @@ func (r *Enemy) IsAlive() bool {
 	return r.frame < r.cfg.DurationFrame
 }
 
-func (r *Enemy) Update() error {
+func (r *Enemy) Update() (bullets []*Bullet, err error) {
 	r.point, r.rad = r.move.Move(r.frame, r.start)
+	for _, gen := range r.gen {
+		cfg := gen.cfg
+		frame := r.frame - cfg.StartFrame
+		if frame >= 0 && frame%cfg.IntervalFrame == 0 && frame <= cfg.DurationFrame {
+			point, move := gen.gen.Generate(frame, r.point)
+			bullets = append(bullets, NewBullet(cfg.Bullet, point, move, cfg.DurationFrame))
+		}
+	}
 	r.frame++
-	return nil
+	return
 }
 
 func (r *Enemy) Draw(screen *ebiten.Image) {

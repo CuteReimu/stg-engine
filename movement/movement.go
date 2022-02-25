@@ -22,6 +22,7 @@ type stay struct {
 	rad float64
 }
 
+// NewStay (rad)
 func NewStay(args ...float64) Movement {
 	if len(args) == 0 {
 		return defaultMovement
@@ -29,8 +30,8 @@ func NewStay(args ...float64) Movement {
 	return &stay{args[0]}
 }
 
-func (s *stay) Move(frame int, start utils.Point) (point utils.Point, rad float64) {
-	return
+func (s *stay) Move(_ int, start utils.Point) (point utils.Point, rad float64) {
+	return start, s.rad
 }
 
 var defaultMovement = &stay{}

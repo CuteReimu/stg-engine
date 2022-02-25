@@ -15,7 +15,7 @@ func NewLinear(args ...float64) Movement {
 	if len(args) < 4 {
 		return defaultMovement
 	}
-	y, x := math.Sincos(args[2])
+	y, x := math.Sincos(args[2] / 180 * math.Pi)
 	return &linear{
 		speedX: args[0] + x*args[3],
 		speedY: args[1] + y*args[3],

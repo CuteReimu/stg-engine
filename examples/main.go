@@ -12,14 +12,91 @@ import (
 	"runtime"
 )
 
+const bulletConfig = `{
+  "1": {
+    "color": 0,
+    "id": 1,
+    "pic": "rice.png",
+    "pic_scale": 1,
+    "pic_x": 3,
+    "pic_x_slice": 1,
+    "pic_y": 5,
+    "pic_y_slice": 1,
+    "radius": 3
+  }
+}`
+
+const generateConfig = `{
+  "1": {
+    "bullet": 1,
+    "bullet_duration_frame": 0,
+    "duration_frame": 10000,
+    "id": 1,
+    "interval_frame": 10,
+    "move": "rotate_linear",
+    "move_p1": 0,
+    "move_p2": 0,
+    "move_p3": 0.01,
+    "move_p4": 3,
+    "move_p5": 0,
+    "move_p6": 0,
+    "start_frame": 0
+  },
+  "2": {
+	"bullet": 1,
+	"bullet_duration_frame": 0,
+	"duration_frame": 10000,
+	"id": 2,
+	"interval_frame": 10,
+	"move": "rotate_linear",
+	"move_p1": 90,
+	"move_p2": 0,
+	"move_p3": 0.01,
+	"move_p4": 3,
+	"move_p5": 0,
+	"move_p6": 0,
+	"start_frame": 0
+  },
+  "3": {
+	"bullet": 1,
+	"bullet_duration_frame": 0,
+	"duration_frame": 10000,
+	"id": 2,
+	"interval_frame": 10,
+	"move": "rotate_linear",
+	"move_p1": 180,
+	"move_p2": 0,
+	"move_p3": 0.01,
+	"move_p4": 3,
+	"move_p5": 0,
+	"move_p6": 0,
+	"start_frame": 0
+  },
+  "4": {
+	"bullet": 1,
+	"bullet_duration_frame": 0,
+	"duration_frame": 10000,
+	"id": 2,
+	"interval_frame": 10,
+	"move": "rotate_linear",
+	"move_p1": 270,
+	"move_p2": 0,
+	"move_p3": 0.01,
+	"move_p4": 3,
+	"move_p5": 0,
+	"move_p6": 0,
+	"start_frame": 0
+  }
+}`
+
 const enemyConfig = `{
   "1": {
     "color": 1,
-    "duration_frame": 200,
-    "generate": [],
+    "duration_frame": 10000,
+    "generate": [1,2,3,4],
     "hp": 100,
     "id": 1,
-    "move": "linear",
+    "move": "stay",
     "move_p1": 2,
     "move_p2": 2,
     "move_p3": 0,
@@ -33,8 +110,8 @@ const enemyConfig = `{
     "pic_y": 5,
     "pic_y_slice": 1,
     "start_frame": 0,
-    "start_x": 0,
-    "start_y": 0
+    "start_x": 200,
+    "start_y": 200
   }
 }`
 
@@ -53,6 +130,14 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	err = config.Bullet.Init([]byte(bulletConfig))
+	if err != nil {
+		panic(err)
+	}
+	err = config.Generate.Init([]byte(generateConfig))
+	if err != nil {
+		panic(err)
+	}
 	g := &game{}
 	ebiten.SetWindowSize(config.ScreenWidth, config.ScreenHeight)
 	ebiten.SetWindowTitle("MyGame")
@@ -64,6 +149,7 @@ func main() {
 type game struct {
 	frame   int
 	enemies []*stg.Enemy
+	bullets []*stg.Bullet
 }
 
 func (g *game) Update() error {
@@ -74,12 +160,25 @@ func (g *game) Update() error {
 		if !enemy.IsAlive() {
 			continue
 		}
-		if err := enemy.Update(); err != nil {
+		if bullets, err := enemy.Update(); err != nil {
 			return err
+		} else {
+			g.bullets = append(g.bullets, bullets...)
 		}
 		newEnemies = append(newEnemies, enemy)
 	}
 	g.enemies = newEnemies
+	var newBullets []*stg.Bullet
+	for _, bullet := range g.bullets {
+		if !bullet.IsAlive() {
+			continue
+		}
+		if err := bullet.Update(); err != nil {
+			return err
+		}
+		newBullets = append(newBullets, bullet)
+	}
+	g.bullets = newBullets
 	g.frame++
 	return nil
 }
@@ -88,6 +187,9 @@ func (g *game) Draw(screen *ebiten.Image) {
 	screen.Fill(color.Black)
 	for _, enemy := range g.enemies {
 		enemy.Draw(screen)
+	}
+	for _, bullet := range g.bullets {
+		bullet.Draw(screen)
 	}
 }
 
