@@ -16,11 +16,12 @@ func NewLinear(args ...float64) Movement {
 		return defaultMovement
 	}
 	y, x := math.Sincos(args[2] / 180 * math.Pi)
-	return &linear{
+	l := &linear{
 		speedX: args[0] + x*args[3],
 		speedY: args[1] + y*args[3],
-		rad:    math.Atan2(y+args[1], x+args[2]),
 	}
+	l.rad = math.Atan2(l.speedY, l.speedX)
+	return l
 }
 
 func (l *linear) Move(frame int, start utils.Point) (point utils.Point, rad float64) {

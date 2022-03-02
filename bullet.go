@@ -5,6 +5,7 @@ import (
 	"github.com/CuteReimu/stg-engine/movement"
 	"github.com/CuteReimu/stg-engine/utils"
 	"github.com/hajimehoshi/ebiten/v2"
+	"math"
 )
 
 type Bullet struct {
@@ -64,6 +65,7 @@ func (b *Bullet) Draw(screen *ebiten.Image) {
 	opt := &ebiten.DrawImageOptions{}
 	opt.GeoM.Translate(-b.cfg.PicX, -b.cfg.PicY)
 	opt.GeoM.Scale(b.cfg.PicScale, b.cfg.PicScale)
+	opt.GeoM.Rotate(b.rad - math.Pi/2)
 	opt.GeoM.Translate(b.point.X, b.point.Y)
 	screen.DrawImage(b.pic, opt)
 }
