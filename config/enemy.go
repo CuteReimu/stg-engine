@@ -29,6 +29,7 @@ type EnemyDetail struct {
 	MoveP4        float64 `json:"move_p4"`
 	MoveP5        float64 `json:"move_p5"`
 	MoveP6        float64 `json:"move_p6"`
+	Clean         bool    `json:"clean"`
 }
 
 type EnemyDict struct {
