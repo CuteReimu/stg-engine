@@ -14,6 +14,8 @@ func Get(s string, args ...float64) Movement {
 		return NewStay(args...)
 	case "linear":
 		return NewLinear(args...)
+	case "parabola":
+		return NewParabola(args...)
 	}
 	return defaultMovement
 }
