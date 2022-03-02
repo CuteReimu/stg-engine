@@ -15,7 +15,7 @@ type rotateLinear struct {
 // NewRotateLinear (rad, alpha, beta, speed)
 func NewRotateLinear(args ...float64) Generator {
 	if len(args) < 4 {
-		return defaultMovement
+		return defaultGenerator
 	}
 	return &rotateLinear{
 		rad:   args[0],
@@ -30,4 +30,26 @@ func (s *rotateLinear) Generate(frame int, point utils.Point) (utils.Point, move
 	return point, movement.NewLinear(0, 0, rad, s.speed)
 }
 
-var defaultMovement = &rotateLinear{}
+var defaultGenerator = &rotateLinear{}
+
+type normRandomDown struct {
+	normRadius float64
+	downSpeed  float64
+}
+
+// NewNormRandomDown (normRadius, downSpeed)
+func NewNormRandomDown(args ...float64) Generator {
+	if len(args) < 2 {
+		return defaultGenerator
+	}
+	return &normRandomDown{
+		normRadius: args[0],
+		downSpeed:  args[1],
+	}
+}
+
+func (n *normRandomDown) Generate(_ int, point utils.Point) (utils.Point, movement.Movement) {
+	x := utils.Rand.NormFloat64() * n.normRadius
+	y := utils.Rand.NormFloat64() * n.normRadius
+	return utils.Point{X: x + point.X, Y: y + point.Y}, movement.NewLinear(0, n.downSpeed, 0, 0)
+}
