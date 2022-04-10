@@ -15,6 +15,8 @@ func Get(s string, args ...float64) Generator {
 		return NewRotateLinear(args...)
 	case "norm_random_down":
 		return NewNormRandomDown(args...)
+	case "self_target":
+		return NewSelfTarget(args...)
 	}
 	return defaultGenerator
 }

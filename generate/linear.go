@@ -1,8 +1,10 @@
 package generate
 
 import (
+	"github.com/CuteReimu/stg-engine/global"
 	"github.com/CuteReimu/stg-engine/movement"
 	"github.com/CuteReimu/stg-engine/utils"
+	"math"
 )
 
 type rotateLinear struct {
@@ -52,4 +54,22 @@ func (n *normRandomDown) Generate(_ int, point utils.Point) (utils.Point, moveme
 	x := utils.Rand.NormFloat64() * n.normRadius
 	y := utils.Rand.NormFloat64() * n.normRadius
 	return utils.Point{X: x + point.X, Y: y + point.Y}, movement.NewLinear(0, n.downSpeed, 0, 0)
+}
+
+type selfTarget struct {
+	speed float64
+}
+
+// NewSelfTarget (speed)
+func NewSelfTarget(args ...float64) Generator {
+	if len(args) < 1 {
+		return defaultGenerator
+	}
+	return &selfTarget{speed: args[0]}
+}
+
+func (s *selfTarget) Generate(_ int, point utils.Point) (utils.Point, movement.Movement) {
+	diffX, diffY := global.SelfPoint.Diff(point)
+	rad := math.Atan2(diffY, diffX)
+	return point, movement.NewLinear(0, 0, rad/math.Pi*180, s.speed)
 }

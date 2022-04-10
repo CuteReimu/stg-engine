@@ -9,14 +9,15 @@ import (
 )
 
 type Bullet struct {
-	cfg      *config.BulletDetail
-	start    utils.Point
-	point    utils.Point
-	rad      float64
-	frame    int
-	duration int
-	move     movement.Movement
-	pic      *ebiten.Image
+	cfg          *config.BulletDetail
+	start        utils.Point
+	point        utils.Point
+	rad          float64
+	frame        int
+	duration     int
+	move         movement.Movement
+	pic          *ebiten.Image
+	alreadyGraze bool
 }
 
 func NewBullet(id int, point utils.Point, move movement.Movement, duration int) *Bullet {
@@ -49,7 +50,14 @@ func (b *Bullet) CheckCollide(selfPosition utils.Point, selfRadius float64) bool
 }
 
 func (b *Bullet) CheckGraze(selfPosition utils.Point, selfRadius float64) bool {
-	return b.CheckCollide(selfPosition, selfRadius*8)
+	if !b.alreadyGraze {
+		return false
+	}
+	if b.CheckCollide(selfPosition, selfRadius*8) {
+		b.alreadyGraze = true
+		return true
+	}
+	return false
 }
 
 func (b *Bullet) Update() error {
@@ -68,4 +76,8 @@ func (b *Bullet) Draw(screen *ebiten.Image) {
 	opt.GeoM.Rotate(b.rad - math.Pi/2)
 	opt.GeoM.Translate(b.point.X, b.point.Y)
 	screen.DrawImage(b.pic, opt)
+}
+
+func (b *Bullet) CanClean() bool {
+	return b.cfg.CanClean
 }

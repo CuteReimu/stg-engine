@@ -16,6 +16,7 @@ type BulletDetail struct {
 	PicXSlice int     `json:"pic_x_slice"`
 	PicYSlice int     `json:"pic_y_slice"`
 	Color     int     `json:"color"`
+	CanClean  bool    `json:"can_clean"`
 }
 
 type BulletDict map[int]*BulletDetail
