@@ -42,6 +42,4 @@ type SelfBullet interface {
 	Pic() *ebiten.Image
 	// Opt 返回*ebiten.DrawImageOptions
 	Opt() *ebiten.DrawImageOptions
-	// NextTick 每一帧时应该做什么
-	NextTick(bullets []*Bullet, enemy []*Enemy) ([]*Bullet, []*Enemy)
 }

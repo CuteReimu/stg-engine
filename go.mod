@@ -3,6 +3,7 @@ module github.com/CuteReimu/stg-engine
 go 1.17
 
 require (
+	github.com/dengsgo/math-engine v0.0.0-20220213125415-0351c3c75eca
 	github.com/hajimehoshi/ebiten/v2 v2.3.6
 	github.com/pkg/errors v0.9.1
 )
